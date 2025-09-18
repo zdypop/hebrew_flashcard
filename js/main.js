@@ -426,13 +426,13 @@ function speak(text, lang) {
     
     // Find a matching voice, accounting for legacy codes like 'iw' for Hebrew
     const baseLang = lang.split('-')[0];
-    const voice = synthVoices.find(v => {
-        const voiceLang = v.lang.split('-')[0];
-        if (baseLang === 'he') {
-            return voiceLang === 'he' || voiceLang === 'iw';
-        }
-        return voiceLang === baseLang;
-    });
+    let voice = synthVoices.find(v => v.lang.startsWith(lang.split('-')[0]));
+    
+    // If Hebrew (he) voice not found, try legacy Hebrew (iw) code
+    if (!voice && baseLang === 'he') {
+        voice = synthVoices.find(v => v.lang.startsWith('iw'));
+    }
+    
     if (voice) {
         utterance.voice = voice;
     }
