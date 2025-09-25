@@ -1,0 +1,277 @@
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --background-color: #ecf0f1;
+    --card-front-bg: #e3f2fd;
+    --card-back-bg: #e8f5e9;
+    --text-color: #2c3e50;
+    --border-color: #bdc3c7;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --correct-color: #27ae60;
+    --incorrect-color: #c0392b;
+}
+
+body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px 0;
+}
+.main-container {
+    text-align: center;
+    padding: 25px;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px var(--shadow-color);
+    width: 95%;
+    max-width: 600px;
+}
+h1 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    font-size: 2rem;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 10px;
+}
+
+.hebrew-font {
+    font-family: 'SBL Hebrew', serif;
+}
+
+.controls, .mode-switcher {
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+select, button, input[type="text"] {
+    padding: 10px 15px;
+    font-size: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: #fff;
+    transition: all 0.2s ease-in-out;
+}
+select:focus, button:focus, input[type="text"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.5);
+    border-color: var(--primary-color);
+}
+button {
+    cursor: pointer;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+}
+button:hover {
+    background-color: #2980b9;
+}
+button.active {
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    background-color: #2980b9;
+}
+button#shuffle-btn {
+    background-color: var(--secondary-color);
+}
+button#shuffle-btn:hover {
+    background-color: #27ae60;
+}
+
+.flashcard-container, .quiz-container {
+    width: 100%;
+    height: 320px;
+    margin: 25px auto;
+}
+
+/* Flashcard Mode Styles */
+.flashcard-scene {
+    perspective: 1200px;
+    height: 100%;
+}
+.flashcard {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+}
+.flashcard.is-flipped {
+    transform: rotateY(180deg);
+}
+.card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+.card-front {
+    background-color: var(--card-front-bg);
+}
+.card-back {
+    background-color: var(--card-back-bg);
+    transform: rotateY(180deg);
+}
+.hebrew-word {
+    font-size: 3.5rem;
+    margin-bottom: 10px;
+}
+.info {
+    font-size: 1.2rem;
+    line-height: 1.6;
+}
+.transliteration {
+    font-style: italic;
+    color: #555;
+}
+.meaning {
+    font-weight: bold;
+    font-size: 1.4rem;
+}
+
+/* Quiz Mode Styles */
+.quiz-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background-color: #fff;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+#quiz-word {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+#quiz-answer-input {
+    width: 80%;
+    text-align: center;
+}
+#quiz-feedback {
+    margin-top: 15px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    height: 40px; /* Reserve space to prevent layout shift */
+}
+.feedback-correct {
+    color: var(--correct-color);
+}
+.feedback-incorrect {
+    color: var(--incorrect-color);
+}
+.correct-answer {
+     font-size: 1rem;
+     color: #555;
+}
+
+.navigation-buttons {
+    margin-top: 30px;
+}
+.progress {
+    margin-top: 20px;
+    font-size: 1rem;
+    color: #666;
+}
+.hidden {
+    display: none;
+}
+.hebrew-word-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.speak-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--primary-color);
+    padding: 5px;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.speak-btn:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+}
+#quiz-answer-display {
+    margin: 15px 0;
+    font-size: 1.2rem;
+    line-height: 1.6;
+    min-height: 58px; /* Reserve space */
+}
+
+.rating-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0 25px 0;
+}
+
+.rate-btn {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc;
+    flex-basis: calc(33.333% - 10px); /* Three buttons per row */
+}
+
+.rate-btn:hover {
+    background-color: #e0e0e0;
+}
+
+/* Different colors for different ratings */
+.rate-btn[data-quality="0"], .rate-btn[data-quality="1"] { background-color: #f8d7da; color: #721c24; }
+.rate-btn[data-quality="2"], .rate-btn[data-quality="3"] { background-color: #fff3cd; color: #856404; }
+.rate-btn[data-quality="4"], .rate-btn[data-quality="5"] { background-color: #d4edda; color: #155724; }
+.autoplay-controls {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+#autoplay-btn.playing {
+    background-color: var(--incorrect-color); /* Use red to indicate "Stop" */
+}
+
+#autoplay-btn.playing:hover {
+    background-color: #a83227;
+}
+
+#background-play-btn {
+    background-color: #8e44ad;
+    font-size: 14px;
+    padding: 8px 12px;
+}
+
+#background-play-btn:hover {
+    background-color: #7d3c98;
+}

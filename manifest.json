@@ -1,0 +1,24 @@
+{
+  "name": "希伯来文闪卡",
+  "short_name": "希伯来文",
+  "description": "圣经希伯来文词汇学习闪卡应用",
+  "start_url": "./HebrewFlashCard.html",
+  "display": "standalone",
+  "background_color": "#ecf0f1",
+  "theme_color": "#3498db",
+  "orientation": "portrait",
+  "categories": ["education", "reference"],
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiMzNDk4ZGIiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9ImZlYXRoZXIgZmVhdGhlci1ib29rLW9wZW4iPgo8cGF0aCBkPSJtMSAxMiAxMC02IDEwIDZ2MTBsLTEwLTZaIi8+CjxwYXRoIGQ9Im0xIDIgMTAtNiAxMCA2Ii8+Cjwvc3ZnPgo8L3N2Zz4K",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "permissions": [
+    "audio-capture",
+    "wake-lock"
+  ]
+}
