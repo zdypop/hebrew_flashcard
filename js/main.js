@@ -618,6 +618,158 @@ if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !=
     speechSynthesis.onvoiceschanged = populateVoiceList;
 }
 
+// PWA Install functionality
+let deferredPrompt;
+
+// Listen for the beforeinstallprompt event
+window.addEventListener('beforeinstallprompt', (e) => {
+    console.log('PWA install prompt triggered');
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
+    // Stash the event so it can be triggered later
+    deferredPrompt = e;
+    // Show install button
+    showInstallButton();
+});
+
+// Show install button
+function showInstallButton() {
+    // Create install button if it doesn't exist
+    if (!document.getElementById('install-btn')) {
+        const installBtn = document.createElement('button');
+        installBtn.id = 'install-btn';
+        installBtn.textContent = '📱 安装应用';
+        installBtn.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        `;
+        
+        installBtn.addEventListener('click', installPWA);
+        installBtn.addEventListener('mouseover', () => {
+            installBtn.style.background = '#229954';
+            installBtn.style.transform = 'scale(1.05)';
+        });
+        installBtn.addEventListener('mouseout', () => {
+            installBtn.style.background = '#27ae60';
+            installBtn.style.transform = 'scale(1)';
+        });
+        
+        document.body.appendChild(installBtn);
+        
+        // Hide the button after 10 seconds
+        setTimeout(() => {
+            if (installBtn && installBtn.parentNode) {
+                installBtn.style.opacity = '0.6';
+            }
+        }, 10000);
+    }
+}
+
+// Install PWA
+async function installPWA() {
+    const installBtn = document.getElementById('install-btn');
+    
+    if (deferredPrompt) {
+        // Show the install prompt
+        deferredPrompt.prompt();
+        // Wait for the user to respond to the prompt
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to the install prompt: ${outcome}`);
+        // Clear the deferredPrompt variable
+        deferredPrompt = null;
+        // Hide the install button
+        if (installBtn) {
+            installBtn.remove();
+        }
+    } else {
+        // Fallback: show manual installation instructions
+        showInstallInstructions();
+    }
+}
+
+// Show manual install instructions
+function showInstallInstructions() {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isAndroid = /Android/.test(navigator.userAgent);
+    
+    let instructions = '';
+    
+    if (isIOS) {
+        instructions = `
+            <h3>📱 在iPhone/iPad上安装：</h3>
+            <ol>
+                <li>点击Safari底部的分享按钮 📤</li>
+                <li>向下滑动找到"添加到主屏幕"</li>
+                <li>点击"添加到主屏幕"</li>
+                <li>确认应用名称，点击"添加"</li>
+            </ol>
+        `;
+    } else if (isAndroid) {
+        instructions = `
+            <h3>📱 在Android设备上安装：</h3>
+            <ol>
+                <li>点击Chrome浏览器菜单（三个点）</li>
+                <li>选择"添加到主屏幕"或"安装应用"</li>
+                <li>确认安装</li>
+            </ol>
+        `;
+    } else {
+        instructions = `
+            <h3>💻 在桌面浏览器安装：</h3>
+            <ol>
+                <li>在地址栏右侧查找安装图标</li>
+                <li>或在浏览器菜单中选择"安装应用"</li>
+                <li>确认安装</li>
+            </ol>
+        `;
+    }
+    
+    // Create modal
+    const modal = document.createElement('div');
+    modal.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+                    background: rgba(0,0,0,0.7); z-index: 9999; 
+                    display: flex; align-items: center; justify-content: center;">
+            <div style="background: white; padding: 20px; border-radius: 15px; 
+                        max-width: 400px; margin: 20px; max-height: 80vh; overflow-y: auto;">
+                <h2>📲 安装希伯来文闪卡</h2>
+                ${instructions}
+                <p style="color: #666; font-size: 14px; margin-top: 15px;">
+                    安装后可以像普通应用一样使用，支持离线访问和后台播放功能。
+                </p>
+                <button onclick="this.closest('div').parentNode.remove()" 
+                        style="background: #3498db; color: white; border: none; 
+                               padding: 10px 20px; border-radius: 8px; cursor: pointer; 
+                               margin-top: 15px;">
+                    知道了
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// Handle app installed event
+window.addEventListener('appinstalled', () => {
+    console.log('PWA was installed');
+    const installBtn = document.getElementById('install-btn');
+    if (installBtn) {
+        installBtn.remove();
+    }
+});
+
 // Handle page visibility changes for background audio
 document.addEventListener('visibilitychange', () => {
     if (isAutoplaying && document.hidden) {
