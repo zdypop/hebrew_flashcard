@@ -1,8 +1,9 @@
 {
   "name": "希伯来文闪卡",
   "short_name": "希伯来文",
+  "version": "2.0.0",
   "description": "圣经希伯来文词汇学习闪卡应用",
-  "start_url": "./HebrewFlashCard.html",
+  "start_url": "./HebrewFlashCard.html?v=2",
   "scope": "./",
   "display": "standalone",
   "background_color": "#ecf0f1",

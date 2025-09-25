@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=SBL+Hebrew&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=2">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#3498db">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -87,15 +87,26 @@
     <div id="progress" class="progress"></div>
 </div>
 
-<script src="js/data.js"></script>
-<script src="js/main.js"></script>
+<script src="js/data.js?v=2"></script>
+<script src="js/main.js?v=2"></script>
 
 <script>
 // Register Service Worker for background audio support
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js')
+  navigator.serviceWorker.register('./sw.js?v=2')
     .then((registration) => {
       console.log('SW registered successfully');
+      // 强制更新Service Worker
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // 新的Service Worker可用，提示用户刷新
+            console.log('New version available, refreshing...');
+            window.location.reload();
+          }
+        });
+      });
     })
     .catch((error) => {
       console.log('SW registration failed');
