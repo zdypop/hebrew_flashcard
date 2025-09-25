@@ -265,13 +265,3 @@ button#shuffle-btn:hover {
 #autoplay-btn.playing:hover {
     background-color: #a83227;
 }
-
-#background-play-btn {
-    background-color: #8e44ad;
-    font-size: 14px;
-    padding: 8px 12px;
-}
-
-#background-play-btn:hover {
-    background-color: #7d3c98;
-}

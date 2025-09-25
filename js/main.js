@@ -21,7 +21,6 @@ const quizAnswerDisplay = document.getElementById('quiz-answer-display');
 const ratingButtons = document.getElementById('rating-buttons');
 const autoplayBtn = document.getElementById('autoplay-btn');
 const autoplaySpeedSelect = document.getElementById('autoplay-speed');
-const backgroundPlayBtn = document.getElementById('background-play-btn');
 
 
 // --- State Variables ---
@@ -33,6 +32,8 @@ let synthVoices = []; // To store available speech synthesis voices
 let isAutoplaying = false;
 let autoplayTimer = null;
 let wakeLock = null; // For keeping screen awake during autoplay
+let silentAudioContext = null; // For background audio support
+let silentAudioSource = null;
 
 
 // --- Functions ---
@@ -324,16 +325,17 @@ function toggleAutoplay() {
 
 async function startAutoplay() {
     if (currentDeck.length === 0) return;
+    
     isAutoplaying = true;
     autoplayBtn.textContent = '停止播放';
     autoplayBtn.classList.add('playing');
     
-    // Show background play button
-    backgroundPlayBtn.style.display = 'inline-block';
-    
     // Disable nav buttons during autoplay
     prevBtn.disabled = true;
     nextBtn.disabled = true;
+    
+    // Start background audio support
+    await playSilentAudio();
     
     // Request wake lock to keep screen awake
     await requestWakeLock();
@@ -347,14 +349,59 @@ function stopAutoplay() {
     autoplayBtn.textContent = '自动播放';
     autoplayBtn.classList.remove('playing');
     
-    // Hide background play button
-    backgroundPlayBtn.style.display = 'none';
-    
     prevBtn.disabled = false;
     nextBtn.disabled = false;
     
+    // Stop background audio support
+    stopSilentAudio();
+    
     // Release wake lock
     releaseWakeLock();
+}
+
+// Silent audio for background playback support
+async function playSilentAudio() {
+    try {
+        if (!silentAudioContext) {
+            silentAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        
+        // Resume audio context if suspended
+        if (silentAudioContext.state === 'suspended') {
+            await silentAudioContext.resume();
+        }
+        
+        // Create a silent audio buffer (1 second of silence)
+        const buffer = silentAudioContext.createBuffer(1, silentAudioContext.sampleRate, silentAudioContext.sampleRate);
+        
+        // Create and start a looping silent audio source
+        function createSilentSource() {
+            const source = silentAudioContext.createBufferSource();
+            source.buffer = buffer;
+            source.loop = true;
+            source.connect(silentAudioContext.destination);
+            source.start();
+            return source;
+        }
+        
+        silentAudioSource = createSilentSource();
+        
+        console.log('Silent audio started for background support');
+    } catch (err) {
+        console.warn('Failed to start silent audio:', err);
+    }
+}
+
+function stopSilentAudio() {
+    if (silentAudioSource) {
+        try {
+            silentAudioSource.stop();
+            silentAudioSource.disconnect();
+            silentAudioSource = null;
+        } catch (err) {
+            console.warn('Error stopping silent audio:', err);
+        }
+    }
 }
 
 // Wake Lock API functions
@@ -379,67 +426,52 @@ function releaseWakeLock() {
     }
 }
 
-// Background play functionality
-function toggleBackgroundPlay() {
-    if (isAutoplaying) {
-        // Enable background audio notifications for better mobile support
-        enableBackgroundAudio();
-        
-        // Hide the app interface but keep audio playing
-        document.body.style.opacity = '0.1';
-        document.body.style.pointerEvents = 'none';
-        
-        // Show a small indicator
-        showBackgroundIndicator();
-        
-        // Update button text
-        backgroundPlayBtn.textContent = '显示界面';
-        backgroundPlayBtn.style.pointerEvents = 'auto';
-        backgroundPlayBtn.style.opacity = '1';
-    } else {
-        // Restore normal interface
-        document.body.style.opacity = '1';
-        document.body.style.pointerEvents = 'auto';
-        hideBackgroundIndicator();
-        backgroundPlayBtn.textContent = '后台播放';
-    }
-}
-
-function enableBackgroundAudio() {
-    // Create audio context to maintain audio during background
-    if (typeof window.AudioContext !== 'undefined' || typeof window.webkitAudioContext !== 'undefined') {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (!window.audioCtx) {
-            window.audioCtx = new AudioContext();
-            // Create a silent audio buffer to keep audio active
-            const buffer = window.audioCtx.createBuffer(1, 1, 22050);
-            const source = window.audioCtx.createBufferSource();
-            source.buffer = buffer;
-            source.connect(window.audioCtx.destination);
-            source.start();
+// Update media metadata for lock screen controls
+function updateMediaMetadata(card) {
+    if ('mediaSession' in navigator) {
+        try {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: card.he,
+                artist: '希伯来文闪卡',
+                album: card.zh + ' / ' + card.en,
+                artwork: [
+                    {
+                        src: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIHJ4PSIyNCIgZmlsbD0iIzM0OThkYiIvPjx0ZXh0IHg9Ijk2IiB5PSIxMTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjQ4IiBmb250LWZhbWlseT0iYXJpYWwsIHNhbnMtc2VyaWYiPsOXPC90ZXh0Pjwvc3ZnPg==',
+                        sizes: '192x192',
+                        type: 'image/svg+xml'
+                    }
+                ]
+            });
+            
+            // Set up media session action handlers
+            navigator.mediaSession.setActionHandler('play', () => {
+                if (!isAutoplaying) startAutoplay();
+            });
+            
+            navigator.mediaSession.setActionHandler('pause', () => {
+                if (isAutoplaying) stopAutoplay();
+            });
+            
+            navigator.mediaSession.setActionHandler('previoustrack', () => {
+                if (isAutoplaying) {
+                    currentIndex = (currentIndex - 1 + currentDeck.length) % currentDeck.length;
+                    updateView();
+                    updateMediaMetadata(currentDeck[currentIndex]);
+                }
+            });
+            
+            navigator.mediaSession.setActionHandler('nexttrack', () => {
+                if (isAutoplaying) {
+                    currentIndex = (currentIndex + 1) % currentDeck.length;
+                    updateView();
+                    updateMediaMetadata(currentDeck[currentIndex]);
+                }
+            });
+            
+            console.log('Media metadata updated:', card.he);
+        } catch (err) {
+            console.warn('Failed to update media metadata:', err);
         }
-    }
-}
-
-function showBackgroundIndicator() {
-    const indicator = document.createElement('div');
-    indicator.id = 'background-indicator';
-    indicator.innerHTML = `
-        <div style="position: fixed; top: 20px; left: 20px; z-index: 9999; 
-                    background: rgba(0,0,0,0.8); color: white; padding: 10px 15px; 
-                    border-radius: 20px; font-size: 14px; opacity: 1; pointer-events: auto;">
-            🎵 后台播放中... <button onclick="toggleBackgroundPlay()" style="margin-left: 10px; 
-                                 padding: 5px 10px; border: none; border-radius: 10px; 
-                                 background: #3498db; color: white; cursor: pointer;">显示界面</button>
-        </div>
-    `;
-    document.body.appendChild(indicator);
-}
-
-function hideBackgroundIndicator() {
-    const indicator = document.getElementById('background-indicator');
-    if (indicator) {
-        indicator.remove();
     }
 }
 
@@ -455,11 +487,13 @@ function autoplayNextStep() {
     
     const card = currentDeck[currentIndex];
     
+    // Update media metadata for lock screen
+    updateMediaMetadata(card);
+    
     // 2. 延迟 0.5 秒后朗读希伯来语
     setTimeout(() => {
         if (isAutoplaying) speak(card.he, 'he-IL');
     }, 500);
-
 
     // 3. 等待，然后翻转卡片
     autoplayTimer = setTimeout(() => {
@@ -482,7 +516,6 @@ function autoplayNextStep() {
 
 
 autoplayBtn.addEventListener('click', toggleAutoplay);
-backgroundPlayBtn.addEventListener('click', toggleBackgroundPlay);
 autoplaySpeedSelect.addEventListener('change', () => {
     if (isAutoplaying) {
         stopAutoplay();
@@ -774,17 +807,18 @@ window.addEventListener('appinstalled', () => {
 document.addEventListener('visibilitychange', () => {
     if (isAutoplaying && document.hidden) {
         // Page is hidden, ensure audio continues
-        enableBackgroundAudio();
+        console.log('Page hidden, maintaining background audio');
     }
 });
 
-// Handle beforeunload to clean up wake lock
+// Handle beforeunload to clean up
 window.addEventListener('beforeunload', () => {
     releaseWakeLock();
+    stopSilentAudio();
 });
 
-// Make toggleBackgroundPlay globally available
-window.toggleBackgroundPlay = toggleBackgroundPlay;
+// Make updateMediaMetadata globally available
+window.updateMediaMetadata = updateMediaMetadata;
 
 populateChapterSelectors();
 loadLearningData();
