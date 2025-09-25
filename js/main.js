@@ -674,7 +674,7 @@ function showInstallButton() {
         installBtn.textContent = '📱 安装应用';
         installBtn.style.cssText = `
             position: fixed;
-            bottom: 20px;
+            top: 20px;
             right: 20px;
             background: #27ae60;
             color: white;
