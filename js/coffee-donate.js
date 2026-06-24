@@ -11,11 +11,12 @@
   var COFFEE_FRAMES = [CDN + 'coffee0x.png', CDN + 'coffee1x.png'];
   var ZELLE_IMG = CDN + 'zelle_zdy.png';
   var VENMO_IMG = CDN + 'Venmo_zdy.png';
+  var WECHAT_IMG = CDN + 'wechat_zdy.jpg';
 
   var frameIndex = 0;
 
   // ── Preload images ──
-  COFFEE_FRAMES.concat([ZELLE_IMG, VENMO_IMG]).forEach(function (src) {
+  COFFEE_FRAMES.concat([ZELLE_IMG, VENMO_IMG, WECHAT_IMG]).forEach(function (src) {
     var img = new Image();
     img.src = src;
   });
@@ -60,6 +61,11 @@
             '<img src="' + VENMO_IMG + '" alt="Venmo QR Code">' +
             '<span class="donate-qr-title venmo">Venmo</span>' +
             '<span class="donate-qr-sub">Scan to pay with Venmo</span>' +
+          '</div>' +
+          '<div class="donate-qr-card">' +
+            '<img src="' + WECHAT_IMG + '" alt="WeChat Pay QR Code">' +
+            '<span class="donate-qr-title wechat">WeChat Pay</span>' +
+            '<span class="donate-qr-sub">Scan to pay with WeChat</span>' +
           '</div>' +
         '</div>' +
       '</div>';

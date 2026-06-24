@@ -58,6 +58,23 @@
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 }
 
+.coffee-btn.shrunk::before {
+  content: '';
+  position: absolute;
+  top: -15px; left: -15px; right: -15px; bottom: -15px;
+  background: radial-gradient(circle, rgba(255,255,255,0.8) 30%, rgba(255,255,255,0) 70%);
+  z-index: -1;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  animation: fade-in-glow 0.5s ease forwards;
+  animation-delay: 1.2s;
+}
+
+@keyframes fade-in-glow {
+  to { opacity: 1; }
+}
+
 /* Modal Overlay */
 .donate-modal-overlay {
   position: fixed;
@@ -178,6 +195,7 @@
 }
 .donate-qr-title.zelle { color: #7414CA; }
 .donate-qr-title.venmo { color: #008CFF; }
+.donate-qr-title.wechat { color: #07C160; }
 .donate-qr-sub {
   font-size: 0.75rem;
   color: #718096;
